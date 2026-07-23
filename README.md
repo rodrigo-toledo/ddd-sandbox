@@ -1,84 +1,79 @@
 # DDD Sandbox
 
-A didactic e-commerce order fulfillment application for learning Domain-Driven Design concepts, built in Go.
+The same e-commerce order fulfillment application implemented two ways — **DDD** and **traditional layered architecture** — so you can compare them side by side.
 
-See [PLAN.md](PLAN.md) for scope, motivation, and architecture.
+Same domain, same API endpoints, same behavior. The difference is how the logic is organized.
 
-## Prerequisites
+## Running
 
-- Go 1.26+
-- sqlc (`go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`)
-- goose (`go install github.com/pressly/goose/v3/cmd/goose@latest`)
-
-## Commands
+Both servers expose identical endpoints. The DDD version runs on `:8080`, the layered on `:8081`.
 
 ```bash
-make build        # Compile all packages
-make test         # Run all tests
-make lint         # Run go vet
-make sqlc         # Generate type-safe DB code from SQL
-make migrate      # Run migrations (creates ddd-sandbox.db)
-make migrate-down # Rollback last migration
+# DDD version
+cd go-ddd && go run ./cmd/api
+
+# Layered version
+cd go-layered && go run .
 ```
 
-## Running the API
+## API (identical for both)
 
 ```bash
-go run ./cmd/api
-```
-
-Then interact with it:
-
-```bash
-# Create a product
 curl -X POST localhost:8080/products \
   -d '{"id":"prod-1","name":"Mechanical Keyboard","stock":50}'
 
-# Place an order (triggers the saga: reserve → authorize → capture → confirm)
 curl -X POST localhost:8080/orders \
   -d '{"order_id":"order-1","customer_id":"alice","payment_id":"pay-1","items":[{"product_id":"prod-1","quantity":2,"unit_price":15000,"currency":"USD"}]}'
 
-# Get order status
 curl localhost:8080/orders/order-1
-
-# Ship the order
 curl -X POST localhost:8080/orders/order-1/ship
-
-# Deliver the order
 curl -X POST localhost:8080/orders/order-1/deliver
-
-# Request a return (within 30-day window)
 curl -X POST localhost:8080/orders/order-1/return
-
-# Check product stock
 curl localhost:8080/products/prod-1
 ```
 
-## Running the Demo (in-memory, no HTTP)
+## What to Compare
+
+| Concern | go-ddd | go-layered |
+|---|---|---|
+| Business logic | Inside aggregates (methods guard invariants) | In service functions (`if` checks) |
+| Models | Rich (behavior + state together) | Anemic (fields only) |
+| Place order coordination | `PlaceOrderSaga` with explicit `compensate()` | One long `PlaceOrder()` with inline rollback |
+| Fulfillment tracking | `FulfillmentPM` state machine + injectable clock | Status field + time check in `RequestReturn()` |
+| Domain events | Explicit events on a bus | None — direct calls |
+| Testing | Pure unit tests (in-memory repos, no DB) | Integration tests (SQLite `:memory:`) |
+| Invariant enforcement | Compiler-enforced (can't bypass aggregate methods) | Convention-enforced (any code can set fields) |
+
+## Key Files to Diff
 
 ```bash
-go run ./cmd/demo
+# The "saga" vs. inline compensation
+go-ddd/internal/application/saga/place_order.go
+go-layered/services/order_service.go
+
+# The "process manager" vs. status check
+go-ddd/internal/application/processmanager/fulfillment.go
+go-layered/services/order_service.go  # RequestReturn()
+
+# Rich model vs. anemic model
+go-ddd/internal/domain/order/order.go
+go-layered/models/order.go
+
+# Pure tests vs. DB-dependent tests
+go-ddd/internal/application/saga/place_order_test.go
+go-layered/services/order_service_test.go
 ```
 
-## Project Structure
+## Development
 
+```bash
+# Each is an independent Go module
+cd go-ddd && make test
+cd go-layered && make test
 ```
-internal/
-├── domain/           # Pure domain logic (zero external deps)
-│   ├── shared/       # DomainEvent, Money, Clock
-│   ├── order/        # Order aggregate
-│   ├── inventory/    # Product aggregate
-│   └── payment/      # Payment aggregate
-├── application/      # Use-case orchestration
-│   ├── saga/         # PlaceOrderSaga
-│   ├── processmanager/ # FulfillmentProcessManager
-│   └── service/      # Application services
-└── infrastructure/   # Adapters
-    ├── eventbus/     # In-memory event bus
-    ├── http/         # Chi router + handlers
-    ├── persistence/  # SQLite repos (hand-written mappers + sqlc-generated queries in sqlc/)
-    └── inmemory/     # In-memory repos (for tests)
-cmd/
-├── api/              # HTTP server (SQLite-backed)
-└── demo/             # In-memory lifecycle demo
-```
+
+## Docs
+
+- [go-ddd/PLAN.md](go-ddd/PLAN.md) — DDD scope, architecture, growth path
+- [go-ddd/LEARNING.md](go-ddd/LEARNING.md) — guided reading order for DDD concepts
+- [RESTRUCTURE_PLAN.md](RESTRUCTURE_PLAN.md) — implementation plan for this restructure
