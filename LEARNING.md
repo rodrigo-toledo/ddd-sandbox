@@ -49,7 +49,7 @@ Events are facts that happened in the past. They:
 ## 4. Repository Pattern & Dependency Inversion
 
 **Read:**
-1. `internal/domain/order/repository.go` (interface — 4 lines)
+1. `internal/domain/order/repository.go` (interface — just `Save` and `FindByID`)
 2. `internal/infrastructure/inmemory/order_repo.go` (test implementation)
 3. `internal/infrastructure/persistence/order_repo.go` (SQLite implementation)
 
@@ -93,7 +93,7 @@ Unlike the saga (completes in milliseconds), the process manager tracks a proces
 Key differences from the saga:
 - **Persisted state** (survives restarts)
 - **Time-aware** (return window deadline, injectable clock)
-- **Reactive** (responds to events as they arrive, doesn't orchestrate calls)
+- **Invoked by the application service** after each domain event (not subscribed to the bus directly — a deliberate simplification; in production you'd wire it as an event subscriber)
 
 **Focus on the tests:**
 - `TestReturnWithinWindow`: return at day 10 → allowed

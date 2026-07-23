@@ -36,7 +36,7 @@ internal/
 │   └── service/      # Application services
 └── infrastructure/   # Adapters
     ├── eventbus/     # In-memory event bus
-    ├── persistence/  # SQLite repos (sqlc-generated)
+    ├── persistence/  # SQLite repos (hand-written mappers + sqlc-generated queries in sqlc/)
     └── inmemory/     # In-memory repos (for tests)
 cmd/
 └── demo/             # Wiring + lifecycle demo

@@ -40,7 +40,8 @@ With compensating transactions on failure:
 Long-running state machine tracking order fulfillment:
 
 ```
-WaitingForShipment → Shipped → Delivered → [ReturnWindowOpen] → Completed
+WaitingForShipment → Shipped → Delivered (return window open) → Completed
+                                                                  ↘ ReturnRequested → Completed
 ```
 
 With a 30-day return window timer (injectable clock for deterministic tests).
@@ -49,7 +50,7 @@ With a 30-day return window timer (injectable clock for deterministic tests).
 
 - Domain Events (plain structs, no framework)
 - Repository pattern (interfaces in domain, implementations in infrastructure)
-- In-memory event bus (synchronous, channel-free for determinism)
+- In-memory event bus (synchronous dispatch for determinism)
 - Dependency inversion (domain has zero external imports)
 
 ## Architecture
@@ -80,8 +81,9 @@ graph TD
     AS --> I
     AS --> P
     AS --> EB
+    AS --> S
+    AS --> PM
     S --> EB
-    PM --> EB
     SR --> RI
     IM --> RI
     O -.-> E

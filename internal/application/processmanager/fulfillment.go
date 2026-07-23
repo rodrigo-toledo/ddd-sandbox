@@ -12,7 +12,6 @@ const (
 	StateWaitingForShipment State = "waiting_for_shipment"
 	StateShipped            State = "shipped"
 	StateDelivered          State = "delivered"
-	StateReturnWindowOpen   State = "return_window_open"
 	StateReturnRequested    State = "return_requested"
 	StateCompleted          State = "completed"
 )
