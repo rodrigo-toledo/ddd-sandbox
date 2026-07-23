@@ -1,3 +1,4 @@
 ddd-sandbox.db
 *.db
 /demo
+/go-layered/go-layered
