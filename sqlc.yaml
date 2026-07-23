@@ -1,0 +1,10 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    queries: "internal/infrastructure/persistence/queries/"
+    schema: "migrations/"
+    gen:
+      go:
+        package: "sqlc"
+        out: "internal/infrastructure/persistence/sqlc"
+        sql_package: "modernc.org/sqlite"
