@@ -76,4 +76,3 @@ cd go-layered && make test
 
 - [go-ddd/PLAN.md](go-ddd/PLAN.md) — DDD scope, architecture, growth path
 - [go-ddd/LEARNING.md](go-ddd/LEARNING.md) — guided reading order for DDD concepts
-- [RESTRUCTURE_PLAN.md](RESTRUCTURE_PLAN.md) — implementation plan for this restructure
