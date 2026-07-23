@@ -3,6 +3,7 @@ module github.com/rodrigotoledo/ddd-sandbox/go-layered
 go 1.26.5
 
 require (
+	github.com/go-chi/chi/v5 v5.3.1
 	github.com/stretchr/testify v1.11.1
 	modernc.org/sqlite v1.54.0
 )
