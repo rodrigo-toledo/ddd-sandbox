@@ -7,4 +7,4 @@ sql:
       go:
         package: "sqlc"
         out: "internal/infrastructure/persistence/sqlc"
-        sql_package: "modernc.org/sqlite"
+        sql_package: "database/sql"
