@@ -6,7 +6,6 @@ import (
 	"github.com/rodrigotoledo/ddd-sandbox/go-ddd/internal/domain/inventory"
 	"github.com/rodrigotoledo/ddd-sandbox/go-ddd/internal/domain/order"
 	"github.com/rodrigotoledo/ddd-sandbox/go-ddd/internal/domain/payment"
-	"github.com/rodrigotoledo/ddd-sandbox/go-ddd/internal/domain/shared"
 	"github.com/rodrigotoledo/ddd-sandbox/go-ddd/internal/infrastructure/eventbus"
 )
 
@@ -103,4 +102,3 @@ func (s *OrderService) RequestReturn(orderID string) error {
 	return s.fulfillment.HandleReturnRequested(orderID)
 }
 
-var _ shared.DomainEvent = (*order.OrderPlaced)(nil)
